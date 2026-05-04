@@ -32,6 +32,7 @@ const requestRoutes = require('./routes/request');
 const chatRoutes = require('./routes/chat');
 const ideaRoutes = require('./routes/idea');
 const feedbackRoutes = require('./routes/feedback');
+const fundingRoutes = require('./routes/funding');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
@@ -39,6 +40,7 @@ app.use('/api/requests', requestRoutes);
 app.use('/api/chats', chatRoutes);
 app.use('/api/ideas', ideaRoutes);
 app.use('/api/feedback', feedbackRoutes);
+app.use('/api/fundings', fundingRoutes);
 
 // Socket.io for Real-time Chat
 let onlineUsers = new Map();

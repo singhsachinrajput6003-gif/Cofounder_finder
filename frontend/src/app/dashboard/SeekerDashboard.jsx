@@ -32,6 +32,7 @@ const Checkbox = ({ label, checked, onChange }) => (
 
 export default function SeekerDashboard() {
     const { user: currentUser } = useAuth();
+    const [myProfile, setMyProfile] = useState(null); // fresh profile with skills
     const [ideas, setIdeas] = useState([]);
     const [requestMap, setRequestMap] = useState({});
     const [loading, setLoading] = useState(true);
@@ -44,11 +45,13 @@ export default function SeekerDashboard() {
     useEffect(() => {
         const load = async () => {
             try {
-                const [ideasRes, sentRes] = await Promise.all([
+                const [ideasRes, sentRes, profileRes] = await Promise.all([
                     api.get('/ideas'),
                     api.get('/requests/sent'),
+                    api.get('/users/profile'),  // fetch fresh skills data
                 ]);
                 setIdeas(ideasRes.data);
+                setMyProfile(profileRes.data);
                 const map = {};
                 for (const r of sentRes.data) {
                     const key = r.ideaId ? r.ideaId.toString() : r.receiverId?.toString();
@@ -64,17 +67,28 @@ export default function SeekerDashboard() {
     const sendRequest = async (receiverId, ideaId) => {
         const key = ideaId || receiverId;
         if (!receiverId || receiverId === currentUser?.id || requestMap[key]) return;
-        
+
+        // Use fresh profile skills (login response doesn't include skills field)
+        const mySkills = myProfile?.skills || [];
         const idea = ideas.find(i => i._id === ideaId);
-        if (idea && idea.lookingFor && currentUser?.skills) {
-            const compScore = calculateCompatibility(currentUser.skills, idea.lookingFor);
+
+        // Strict matching: if idea has lookingFor AND user has skills, both must overlap
+        if (idea && idea.lookingFor?.length > 0 && mySkills.length > 0) {
+            const compScore = calculateCompatibility(mySkills, idea.lookingFor);
             if (compScore === 0) {
-                toast.error("Compatibility Alert: Your skills do not match the required goals and skills for this startup. Request blocked to prevent mismatched partnerships.", {
+                toast.error("Skills did not match! Your skills do not match the requirements of this startup. Update your profile first.", {
                     icon: '⚠️',
                     duration: 5000
                 });
                 return;
             }
+        } else if (idea && idea.lookingFor?.length > 0 && mySkills.length === 0) {
+            // User hasn't added any skills — warn them
+            toast.error("Please add skills to your profile before sending requests!", {
+                icon: '📝',
+                duration: 4000
+            });
+            return;
         }
 
         setRequestMap(prev => ({ ...prev, [key]: 'pending' }));
@@ -106,8 +120,8 @@ export default function SeekerDashboard() {
         const founderName = i.founderId?.firstName ? `${i.founderId.firstName} ${i.founderId.lastName}` : '';
         const compMatch = selectedCompanies.length === 0 || selectedCompanies.includes(founderName);
         
-        const currentUserSkills = (currentUser?.skills || []).map(s => s.toLowerCase());
-        const recomMatch = !showRecommended || (i.lookingFor?.some(r => currentUserSkills.includes(r.toLowerCase())));
+        const mySkillsLower = (myProfile?.skills || []).map(s => s.toLowerCase());
+        const recomMatch = !showRecommended || (i.lookingFor?.some(r => mySkillsLower.includes(r.toLowerCase())));
 
         return searchMatch && indMatch && compMatch && recomMatch;
     });
@@ -122,7 +136,7 @@ export default function SeekerDashboard() {
             <header>
                 <div className="flex items-center gap-3 mb-1">
                     <Briefcase size={18} className="text-emerald-400"/>
-                    <span className="text-xs font-bold text-emerald-400 uppercase tracking-widest">Job Seeker Dashboard</span>
+                    <span className="text-xs font-bold text-emerald-400 uppercase tracking-widest">User Dashboard</span>
                 </div>
                 <h1 className="text-4xl font-extrabold mb-2">Explore <span className="gradient-text">Startups</span></h1>
                 <p className="text-slate-400">Browse company ideas and connect with founders.</p>

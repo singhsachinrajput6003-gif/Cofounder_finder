@@ -33,6 +33,11 @@ const IdStatusBadge = ({ status }) => {
 
 export default function ProfilePage() {
     const { user: authUser } = useAuth();
+    const displayRole = (r, fallback = 'User') => {
+        if (!r) return fallback;
+        if (/job seeker/i.test(r) || /seeker/i.test(r)) return 'User';
+        return r;
+    };
     const fileRef = useRef();
     const [formData, setFormData] = useState({
         firstName: '', lastName: '', bio: '', role: '',
@@ -155,7 +160,7 @@ export default function ProfilePage() {
                         {idCard.status === 'approved' && <BadgeCheck size={24} className="text-blue-400" title="Verified" />}
                     </div>
                     <p className="text-indigo-400 font-semibold flex items-center gap-2 mb-2">
-                        <Briefcase size={15} /> {formik.values.role || 'Set your role'}
+                        <Briefcase size={15} /> {displayRole(formik.values.role) || 'Set your role'}
                     </p>
                     <p className="text-slate-400 text-sm flex items-center gap-2">
                         <MapPin size={13} /> {formik.values.location || 'Set your location'}
@@ -163,7 +168,7 @@ export default function ProfilePage() {
                 </div>
                 <div className="flex flex-col items-end gap-3">
                     <div className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-xs font-bold uppercase text-slate-400">
-                        {authUser?.accountType === 'company' ? '🏢 Company Owner' : '💼 Job Seeker'}
+                        {authUser?.accountType === 'company' ? '🏢 Company Owner' : '💼 User'}
                     </div>
                     <IdStatusBadge status={idCard.status} />
                 </div>
@@ -211,7 +216,7 @@ export default function ProfilePage() {
 
                         <div className="space-y-2">
                             <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Bio</label>
-                            <textarea name="bio" rows={4} placeholder="Tell founders or seekers about yourself..." value={formik.values.bio}
+                            <textarea name="bio" rows={4} placeholder="Tell founders or users about yourself..." value={formik.values.bio}
                                 onChange={formik.handleChange} onBlur={formik.handleBlur}
                                 className="w-full bg-slate-900 border border-white/10 p-4 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500/50 text-white text-sm resize-none"
                             />
@@ -336,7 +341,7 @@ export default function ProfilePage() {
                                     <div className="flex-1">
                                         <p className="font-bold">{view.viewerId?.firstName || 'Unknown'} {view.viewerId?.lastName || ''}</p>
                                         <p className="text-slate-500 text-sm flex items-center gap-2">
-                                            <Briefcase size={12} /> {view.viewerId?.role || 'User'}
+                                            <Briefcase size={12} /> {displayRole(view.viewerId?.role)}
                                         </p>
                                     </div>
                                     <div className="text-right">

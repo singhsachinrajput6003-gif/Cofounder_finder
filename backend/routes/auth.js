@@ -16,7 +16,7 @@ router.post('/register', async (req, res) => {
         const user = new User({
             firstName, lastName, email, password,
             accountType: accountType || 'seeker',
-            role: accountType === 'company' ? 'Company Owner' : 'Job Seeker'
+            role: accountType === 'company' ? 'Company Owner' : 'User'
         });
         await user.save();
 

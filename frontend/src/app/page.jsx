@@ -23,9 +23,9 @@ const features = [
     },
     {
         icon: Users, color: 'from-purple-500 to-pink-600', shadow: 'shadow-purple-500/20',
-        title: 'Discover Job Seekers',
-        desc: 'Browse verified seekers filtered by skills and location. Find your perfect co-founder or first hire.',
-        href: '/dashboard', cta: 'Browse Seekers'
+    title: 'Discover Users',
+    desc: 'Browse verified users filtered by skills and location. Find your perfect co-founder or first hire.',
+    href: '/dashboard', cta: 'Browse Users'
     },
     {
         icon: Zap, color: 'from-amber-500 to-orange-600', shadow: 'shadow-amber-500/20',
@@ -42,8 +42,8 @@ const features = [
 ];
 
 const steps = [
-    { step: '01', icon: Briefcase, color: 'from-indigo-500 to-blue-600', title: 'Create Your Profile', desc: 'Register as a Company Owner or Job Seeker in 2 minutes. Choose your role, add your skills.', href: '/register' },
-    { step: '02', icon: Users, color: 'from-purple-500 to-pink-600', title: 'Explore the Hub', desc: 'Browse startup ideas or job seekers. Filter by skills, industry, and more.', href: '/dashboard' },
+    { step: '01', icon: Briefcase, color: 'from-indigo-500 to-blue-600', title: 'Create Your Profile', desc: 'Register as a Company Owner or User in 2 minutes. Choose your role, add your skills.', href: '/register' },
+    { step: '02', icon: Users, color: 'from-purple-500 to-pink-600', title: 'Explore the Hub', desc: 'Browse startup ideas or users. Filter by skills, industry, and more.', href: '/dashboard' },
     { step: '03', icon: Zap, color: 'from-amber-500 to-orange-600', title: 'Connect & Match', desc: 'Send a connection request. The other party accepts — you both get notified instantly.', href: '/requests' },
     { step: '04', icon: MessageSquare, color: 'from-emerald-500 to-teal-600', title: 'Build Together', desc: 'Start chatting in real-time. Plan your product, share documents, and launch.', href: '/messages' },
 ];
@@ -76,7 +76,7 @@ export default function LandingPage() {
                 >
                     <Link href="/register" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-indigo-500/30 bg-indigo-500/5 text-indigo-400 text-sm font-bold mb-10 hover:bg-indigo-500/10 transition-colors">
                         <span className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse" />
-                        2,400+ Founders & Seekers — Join Free
+                        2,400+ Founders & Users — Join Free
                         <ChevronDown size={14} />
                     </Link>
 
@@ -89,7 +89,7 @@ export default function LandingPage() {
 
                     <p className="text-lg md:text-2xl text-slate-400 max-w-3xl mx-auto mb-14 leading-relaxed">
                         Whether you&apos;re a <span className="text-white font-semibold">founder</span> with a big idea
-                        or a <span className="text-white font-semibold">seeker</span> ready to build —
+                        or a <span className="text-white font-semibold">user</span> ready to build —
                         CoFound connects the right people in seconds.
                     </p>
 
@@ -170,7 +170,7 @@ export default function LandingPage() {
                             Everything you need to <span className="gradient-text">co-found</span>
                         </h2>
                         <p className="text-xl text-slate-400 mb-8 leading-relaxed max-w-2xl mx-auto md:mx-0">
-                        Stop endlessly searching. We connect ambitious job seekers with the right startup founders. Because great companies aren&apos;t built alone.
+                        Stop endlessly searching. We connect ambitious users with the right startup founders. Because great companies aren&apos;t built alone.
                     </p>
                     </motion.div>
 
@@ -240,7 +240,7 @@ export default function LandingPage() {
                                 <span className="gradient-text">co-founder?</span>
                             </h2>
                             <p className="text-slate-400 mb-12 max-w-lg mx-auto text-lg leading-relaxed">
-                                Join thousands of founders and seekers already building the future together. Free to join, forever.
+                                Join thousands of founders and users already building the future together. Free to join, forever.
                             </p>
                             <div className="flex flex-col sm:flex-row gap-5 justify-center">
                                 <Link href="/register?type=company" className="gradient-btn px-10 py-5 rounded-2xl font-bold text-lg shadow-2xl shadow-indigo-600/25 flex items-center justify-center gap-3 group">

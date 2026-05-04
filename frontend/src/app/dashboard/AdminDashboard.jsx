@@ -37,8 +37,14 @@ const CheckFilter = ({ label, checked, onChange }) => (
 );
 
 export default function AdminDashboard() {
+    const displayRole = (r, fallback = 'User') => {
+        if (!r) return fallback;
+        if (/job seeker/i.test(r) || /seeker/i.test(r)) return 'User';
+        return r;
+    };
     const { user: currentUser } = useAuth();
     const [tab, setTab] = useState('seekers');
+    const [myProfile, setMyProfile] = useState(null); // fresh profile with skills/lookingFor
     const [seekers, setSeekers] = useState([]);
     const [ideas, setIdeas] = useState([]);
     const [pendingIds, setPendingIds] = useState([]);
@@ -60,17 +66,19 @@ export default function AdminDashboard() {
     useEffect(() => {
         const load = async () => {
             try {
-                const [seekersRes, ideasRes, sentRes, pendingRes, feedbackRes] = await Promise.all([
+                const [seekersRes, ideasRes, sentRes, pendingRes, feedbackRes, profileRes] = await Promise.all([
                     api.get('/users/seekers'),
                     api.get('/ideas'),
                     api.get('/requests/sent'),
                     api.get('/users/pending-ids'),
-                    api.get('/feedback').catch(() => ({ data: [] }))
+                    api.get('/feedback').catch(() => ({ data: [] })),
+                    api.get('/users/profile'),  // fresh skills/lookingFor data
                 ]);
                 setSeekers(seekersRes.data);
                 setIdeas(ideasRes.data);
                 setPendingIds(pendingRes.data);
                 setFeedbacks(feedbackRes.data);
+                setMyProfile(profileRes.data);
                 const map = {};
                 for (const r of sentRes.data) map[r.receiverId?.toString()] = r.status;
                 setRequestMap(map);
@@ -85,19 +93,41 @@ export default function AdminDashboard() {
 
     const sendRequest = async (receiverId) => {
         if (!receiverId || receiverId === currentUser?.id || requestMap[receiverId]) return;
-        
+
         const seeker = seekers.find(s => s._id === receiverId);
-        const adminIdeaSkills = [...new Set(ideas.flatMap(id => id.lookingFor || []))];
-        
-        if (seeker && seeker.skills) {
-            const compScore = calculateCompatibility(seeker.skills, adminIdeaSkills);
+        const seekerSkills = seeker?.skills || [];
+
+        // Collect all skills admin is looking for:
+        // 1. From posted ideas (lookingFor field)
+        // 2. Fallback: from admin's own profile lookingFor
+        const ideaSkills = [...new Set(ideas.flatMap(id => id.lookingFor || []))];
+        const profileSkills = myProfile?.lookingFor || [];
+        const adminIdeaSkills = ideaSkills.length > 0 ? ideaSkills : profileSkills;
+
+        if (seekerSkills.length === 0) {
+            toast.error("The seeker has not added any skills yet, so the request cannot be sent.", {
+                icon: '⚠️',
+                duration: 4000
+            });
+            return;
+        }
+
+        if (adminIdeaSkills.length > 0) {
+            const compScore = calculateCompatibility(seekerSkills, adminIdeaSkills);
             if (compScore === 0) {
-                toast.error("Compatibility Alert: This seeker's skills do not match any of your ideas' required skills. Request blocked to prevent mismatched partnerships.", {
+                toast.error("Skills did not match! This seeker's skills do not match your requirements", {
                     icon: '⚠️',
                     duration: 5000
                 });
                 return;
             }
+        } else {
+            // Admin has no ideas AND no lookingFor in profile — can't match
+            toast.error("I am looking for co-founders/core team members with the following skills to build the Minimum Viable Product ", {
+                icon: '💡',
+                duration: 5000
+            });
+            return;
         }
         
         setRequestMap(prev => ({ ...prev, [receiverId]: 'pending' }));
@@ -155,7 +185,9 @@ export default function AdminDashboard() {
         const nameMatch = `${u.firstName} ${u.lastName} ${u.role}`.toLowerCase().includes(search.toLowerCase());
         const skillMatch = selectedSkills.length === 0 || selectedSkills.some(sk => u.skills?.includes(sk));
         
-        const adminIdeaSkills = [...new Set(ideas.flatMap(i => i.lookingFor || []))].map(s => s.toLowerCase());
+        const ideaSkills = [...new Set(ideas.flatMap(i => i.lookingFor || []))].map(s => s.toLowerCase());
+        const profileSkills = (myProfile?.lookingFor || []).map(s => s.toLowerCase());
+        const adminIdeaSkills = ideaSkills.length > 0 ? ideaSkills : profileSkills;
         const recomMatch = !showRecommended || (u.skills?.some(sk => adminIdeaSkills.includes(sk.toLowerCase())));
 
         return nameMatch && skillMatch && recomMatch;
@@ -185,7 +217,7 @@ export default function AdminDashboard() {
                 <h1 className="text-4xl font-extrabold mb-6">Admin <span className="gradient-text">Hub</span></h1>
                 <div className="flex gap-2 bg-slate-900/50 p-1.5 rounded-2xl border border-white/5 w-fit flex-wrap">
                     {[
-                        { id: 'seekers', label: 'Job Seekers', icon: Users, count: seekers.length },
+                        { id: 'seekers', label: 'Users', icon: Users, count: seekers.length },
                         { id: 'ideas', label: 'My Ideas', icon: Rocket, count: ideas.length },
                         { id: 'approvals', label: 'ID Approvals', icon: ShieldCheck, count: pendingIds.length, alert: pendingIds.length > 0 },
                         { id: 'feedback', label: 'User Feedback', icon: MessageSquare, count: feedbacks.length },
@@ -289,7 +321,7 @@ export default function AdminDashboard() {
                             className="glass-card p-7 flex flex-col group hover:border-emerald-500/30 transition-all cursor-pointer"
                         >
                             <div className="flex items-center justify-between mb-5">
-                                <span className="px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-full text-[11px] font-bold uppercase">{u.role || 'Job Seeker'}</span>
+                                <span className="px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-full text-[11px] font-bold uppercase">{displayRole(u.role)}</span>
                                 <div className="flex flex-col items-end gap-1">
                                     <span className="text-slate-500 text-[11px] flex items-center gap-1"><MapPin size={11} />{u.location || 'Remote'}</span>
                                     {u.idCard?.status === 'approved' && <span className="flex items-center gap-1 text-blue-400 text-[10px] font-bold"><BadgeCheck size={11}/> Verified</span>}
@@ -380,7 +412,7 @@ export default function AdminDashboard() {
                                                     <Clock size={10} /> Pending Review
                                                 </span>
                                             </div>
-                                            <p className="text-slate-400 text-sm mt-0.5">{u.email} · {u.role || 'Job Seeker'}</p>
+                                            <p className="text-slate-400 text-sm mt-0.5">{u.email} · {displayRole(u.role)}</p>
                                         </div>
                                     </div>
                                     <button onClick={() => openProfile(u._id)} className="px-4 py-2.5 bg-white/5 border border-white/10 hover:bg-white/10 rounded-xl text-slate-400 hover:text-white transition-all text-sm font-semibold flex items-center gap-2">
@@ -447,7 +479,7 @@ export default function AdminDashboard() {
                                                 <h2 className="text-2xl font-extrabold">{selectedUser.firstName} {selectedUser.lastName}</h2>
                                                 {selectedUser.idCard?.status === 'approved' && <BadgeCheck size={20} className="text-blue-400" />}
                                             </div>
-                                            <p className="text-indigo-400 font-semibold flex items-center gap-2"><Briefcase size={14} /> {selectedUser.role || 'Job Seeker'}</p>
+                                            <p className="text-indigo-400 font-semibold flex items-center gap-2"><Briefcase size={14} /> {displayRole(selectedUser.role)}</p>
                                             <p className="text-slate-400 text-sm flex items-center gap-2 mt-1"><MapPin size={13} /> {selectedUser.location || 'Remote'}</p>
                                         </div>
                                         <button onClick={() => setSelectedUser(null)} className="p-2 hover:bg-white/10 rounded-xl transition-all"><X size={20} /></button>
@@ -603,7 +635,7 @@ export default function AdminDashboard() {
                                             </div>
                                             <div>
                                                 <p className="font-bold text-sm">{fb.userId?.firstName} {fb.userId?.lastName}</p>
-                                                <p className="text-[10px] text-slate-500">{fb.userId?.role || 'User'}</p>
+                                                <p className="text-[10px] text-slate-500">{displayRole(fb.userId?.role)}</p>
                                             </div>
                                         </div>
                                         <div className="flex gap-1">

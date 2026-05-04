@@ -13,6 +13,7 @@ const navItems = [
     { name: 'Requests', href: '/requests', icon: UserPlus, desc: 'Manage connections' },
     { name: 'Messages', href: '/messages', icon: MessageSquare, desc: 'Real-time chat' },
     { name: 'Profile', href: '/profile', icon: User, desc: 'Your profile' },
+    { name: 'Investor', href: '/investor/dashboard', icon: Rocket, desc: 'Investor tools' },
     { name: 'Feedback', href: '/feedback', icon: MessageSquare, desc: 'Submit feedback' },
 ];
 
@@ -74,7 +75,7 @@ export function Sidebar() {
                     <div className="min-w-0">
                         <p className="text-sm font-bold truncate">{user?.firstName} {user?.lastName}</p>
                         <p className="text-[10px] text-indigo-400 font-bold uppercase truncate">
-                            {user?.accountType === 'company' ? 'Company Owner' : 'Job Seeker'}
+                            {user?.accountType === 'company' ? 'Company Owner' : 'User'}
                         </p>
                     </div>
                 </div>

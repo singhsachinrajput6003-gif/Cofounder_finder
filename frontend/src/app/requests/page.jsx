@@ -28,6 +28,11 @@ const IdBadge = ({ status }) => {
 
 export default function RequestsPage() {
     const { user: currentUser } = useAuth();
+    const displayRole = (r, fallback = 'User') => {
+        if (!r) return fallback;
+        if (/job seeker/i.test(r) || /seeker/i.test(r)) return 'User';
+        return r;
+    };
     const [requests, setRequests] = useState([]);
     const [loading, setLoading] = useState(true);
     const [expandedId, setExpandedId] = useState(null);
@@ -214,7 +219,7 @@ export default function RequestsPage() {
                                                 {selectedUser.idCard?.status === 'approved' && <BadgeCheck size={20} className="text-blue-400" />}
                                                 {selectedUser.idCard?.status === 'pending' && <Clock size={20} className="text-yellow-400" />}
                                             </div>
-                                            <p className="text-indigo-400 font-semibold flex items-center gap-2"><Briefcase size={14} /> {selectedUser.role || 'Job Seeker'}</p>
+                                            <p className="text-indigo-400 font-semibold flex items-center gap-2"><Briefcase size={14} /> {displayRole(selectedUser.role)}</p>
                                             <p className="text-slate-400 text-sm flex items-center gap-2 mt-1"><MapPin size={13} /> {selectedUser.location || 'Remote'}</p>
                                         </div>
                                         <button onClick={() => setSelectedUser(null)} className="p-2 hover:bg-white/10 rounded-xl transition-all"><X size={20} /></button>
@@ -321,8 +326,8 @@ function RequestCard({ req, onRespond, onReviewId, showActions, expanded, onTogg
                             {sender.firstName} {sender.lastName}
                             {compScore > 0 && <span className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded-md">{compScore}% Skill Match</span>}
                         </h3>
-                        <span className="px-2.5 py-1 bg-white/5 border border-white/10 rounded-full text-[10px] font-bold uppercase text-slate-400 flex items-center gap-1">
-                            <Briefcase size={10} /> {sender.role || 'Job Seeker'}
+                            <span className="px-2.5 py-1 bg-white/5 border border-white/10 rounded-full text-[10px] font-bold uppercase text-slate-400 flex items-center gap-1">
+                            <Briefcase size={10} /> {displayRole(sender.role)}
                         </span>
                         <StatusBadge status={req.status} />
                         <IdBadge status={idStatus} />

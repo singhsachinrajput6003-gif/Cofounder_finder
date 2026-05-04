@@ -20,14 +20,25 @@ const accountTypes = [
         bg: 'bg-indigo-500/10'
     },
     {
-        type: 'seeker',
+        type: 'user',
         icon: Briefcase,
-        label: 'Job Seeker',
+        label: 'User',
         tagline: 'I want to join a startup',
         bullets: ['Browse startup ideas', 'Apply to join companies', 'Get discovered by founders'],
         gradient: 'from-emerald-500 to-teal-600',
         ring: 'border-emerald-500',
         bg: 'bg-emerald-500/10'
+    }
+    ,
+    {
+        type: 'investor',
+        icon: User,
+        label: 'Investor',
+        tagline: 'I want to fund promising startups',
+        bullets: ['Browse ideas to invest', 'Contact founders', 'Support early-stage startups'],
+        gradient: 'from-yellow-500 to-amber-600',
+        ring: 'border-yellow-500',
+        bg: 'bg-yellow-500/10'
     }
 ];
 
@@ -45,13 +56,14 @@ export default function RegisterPage() {
     };
 
     const formik = useFormik({
-        initialValues: { firstName: '', lastName: '', email: '', password: '',confirmPassword:'' },
+        initialValues: { firstName: '', lastName: '', email: '', password: '',confirmPassword:'', agree: false },
         validationSchema: Yup.object({
             firstName: Yup.string().required('First name is required'),
             lastName: Yup.string().required('Last name is required'),
             email: Yup.string().email('Invalid email address').required('Email is required'),
             password: Yup.string().min(6, 'Password must be at least 6 characters').required('Password is required'),
             confirmPassword: Yup.string().oneOf([Yup.ref('password'), null], 'Passwords must match').required('Confirm password is required'),
+            agree: Yup.boolean().oneOf([true], 'You must confirm that this idea is original and confidential'),
         }),
         onSubmit: async (values) => {
             setLoading(true);
@@ -232,9 +244,25 @@ export default function RegisterPage() {
                                     {formik.touched.confirmPassword && formik.errors.confirmPassword && <div className="text-red-500 text-xs ml-1">{formik.errors.confirmPassword}</div>}
                                 </div>
 
-                                <button
+                                    {/* Agreement checkbox - required */}
+                                    <div className="space-y-2">
+                                        <label className="inline-flex items-start gap-3 text-sm text-slate-300">
+                                            <input
+                                                name="agree"
+                                                type="checkbox"
+                                                checked={!!formik.values?.agree}
+                                                onChange={formik.handleChange}
+                                                onBlur={formik.handleBlur}
+                                                className="mt-1 w-4 h-4 rounded text-indigo-500 bg-slate-900 border-white/10"
+                                            />
+                                            <span className="text-slate-300 text-sm">This idea is original and confidential. Any unauthorized use, reproduction, or copying is strictly prohibited.</span>
+                                        </label>
+                                        {formik.touched.agree && formik.errors.agree && <div className="text-red-500 text-xs ml-1">{formik.errors.agree}</div>}
+                                    </div>
+
+                                    <button
                                     type="submit"
-                                    disabled={loading}
+                                        disabled={loading || !formik.values?.agree}
                                     className="w-full gradient-btn p-5 rounded-2xl font-bold text-base flex items-center justify-center gap-2 group shadow-xl shadow-indigo-600/20 mt-4"
                                 >
                                     {loading ? 'Creating Account...' : 'Create Account'}

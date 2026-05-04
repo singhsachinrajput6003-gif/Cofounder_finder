@@ -15,7 +15,7 @@ export default function DashboardPage() {
     if (!user) return null;
 
     // Company Owners → Admin Hub
-    // Job Seekers    → Startup Discovery
+    // Users    → Startup Discovery
     return (user.accountType === 'company' || user.role === 'Company Owner' || user.role === 'Founder')
         ? <AdminDashboard />
         : <SeekerDashboard />;

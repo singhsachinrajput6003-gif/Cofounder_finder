@@ -7,14 +7,15 @@ const userSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
 
-    // 'company' = Company Owner  |  'seeker' = Job Seeker
-    accountType: { type: String, enum: ['company', 'seeker'], default: 'seeker' },
+    // 'company' = Company Owner  |  'seeker' = User
+    accountType: { type: String, enum: ['company', 'seeker', 'investor'], default: 'seeker' },
     profileImage: { type: String, default: '' },
     bio: { type: String, default: '' },
     skills: { type: [String], default: [] },
     lookingFor: { type: [String], default: [] },
     experience: { type: String, default: '' },
-    role: { type: String, default: 'Job Seeker' },
+        // 'company' = Company Owner  |  'seeker' = User
+        role: { type: String, default: 'User' },
     location: { type: String, default: '' },
     linkedIn: { type: String, default: '' },
     portfolio: { type: String, default: '' },

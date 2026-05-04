@@ -11,7 +11,7 @@ router.get('/', auth, async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// ── Get only Job Seekers (for Company Owner dashboard)
+// ── Get only Users (for Company Owner dashboard)
 router.get('/seekers', auth, async (req, res) => {
     try {
         const seekers = await User.find({ _id: { $ne: req.user.id }, accountType: 'seeker' })
