@@ -34,6 +34,8 @@ const IdStatusBadge = ({ status }) => {
 export default function ProfilePage() {
     const { user: authUser } = useAuth();
     const displayRole = (r, fallback = 'User') => {
+        // If the logged-in account type is investor, label should show Investor
+        if (authUser?.accountType === 'investor') return 'Investor';
         if (!r) return fallback;
         if (/job seeker/i.test(r) || /seeker/i.test(r)) return 'User';
         return r;

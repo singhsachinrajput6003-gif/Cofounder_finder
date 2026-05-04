@@ -136,7 +136,7 @@ export default function SeekerDashboard() {
             <header>
                 <div className="flex items-center gap-3 mb-1">
                     <Briefcase size={18} className="text-emerald-400"/>
-                    <span className="text-xs font-bold text-emerald-400 uppercase tracking-widest">User Dashboard</span>
+                    <span className="text-xs font-bold text-emerald-400 uppercase tracking-widest">{currentUser?.accountType === 'investor' ? 'Investor Dashboard' : 'User Dashboard'}</span>
                 </div>
                 <h1 className="text-4xl font-extrabold mb-2">Explore <span className="gradient-text">Startups</span></h1>
                 <p className="text-slate-400">Browse company ideas and connect with founders.</p>

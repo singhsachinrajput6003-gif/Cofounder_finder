@@ -2,6 +2,7 @@
 import { useAuth } from '@/context/AuthContext';
 import AdminDashboard from './AdminDashboard';
 import SeekerDashboard from './SeekerDashboard';
+import InvestorDashboard from '../investor/dashboard/page';
 
 export default function DashboardPage() {
     const { user, loading } = useAuth();
@@ -15,8 +16,13 @@ export default function DashboardPage() {
     if (!user) return null;
 
     // Company Owners → Admin Hub
+    // Investors → Investor Dashboard
     // Users    → Startup Discovery
-    return (user.accountType === 'company' || user.role === 'Company Owner' || user.role === 'Founder')
-        ? <AdminDashboard />
-        : <SeekerDashboard />;
+    if (user.accountType === 'company' || user.role === 'Company Owner' || user.role === 'Founder') {
+        return <AdminDashboard />;
+    }
+    if (user.accountType === 'investor') {
+        return <InvestorDashboard />;
+    }
+    return <SeekerDashboard />;
 }

@@ -75,7 +75,7 @@ export function Sidebar() {
                     <div className="min-w-0">
                         <p className="text-sm font-bold truncate">{user?.firstName} {user?.lastName}</p>
                         <p className="text-[10px] text-indigo-400 font-bold uppercase truncate">
-                            {user?.accountType === 'company' ? 'Company Owner' : 'User'}
+                            {user?.accountType === 'company' ? 'Company Owner' : user?.accountType === 'investor' ? 'Investor' : 'User'}
                         </p>
                     </div>
                 </div>
